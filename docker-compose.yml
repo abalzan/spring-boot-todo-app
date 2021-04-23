@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  spring-boot-todo-app:
+    build: ../spring-boot-todo-app
+    container_name: spring-boot-todo-app
+    image: spring-boot-todo-app:latest
+    restart: always
+    ports:
+      - 8080:8080
