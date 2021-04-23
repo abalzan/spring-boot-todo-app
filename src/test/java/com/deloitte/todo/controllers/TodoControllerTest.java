@@ -45,14 +45,14 @@ class TodoControllerTest {
 
     @Test
     void index() throws Exception {
-        mockMvc.perform(get("/"))
+        mockMvc.perform(get("/").with(SecurityMockMvcRequestPostProcessors.httpBasic("user", "pwd123")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"));
     }
 
     @Test
     void todos() throws Exception {
-        mockMvc.perform(get("/api/todos").with(SecurityMockMvcRequestPostProcessors.httpBasic("test", "pwd123")))
+        mockMvc.perform(get("/api/todos").with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "pwd123")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("todos"))
                 .andExpect(model().attributeExists("todos"));
@@ -60,7 +60,7 @@ class TodoControllerTest {
 
     @Test
     void todosUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/todos").with(SecurityMockMvcRequestPostProcessors.httpBasic("test", "wrongpass")))
+        mockMvc.perform(get("/api/todos").with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "wrongpass")))
                 .andExpect(status().isUnauthorized());
     }
 }

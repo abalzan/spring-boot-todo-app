@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -14,24 +15,18 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    public RestAuthFilter restAuthFilter(AuthenticationManager authenticationManager) {
-        RestAuthFilter filter = new RestAuthFilter(new AntPathRequestMatcher("/api/**"));
-        filter.setAuthenticationManager(authenticationManager);
-
-        return filter;
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
-        http.addFilterBefore(restAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .authorizeRequests(authorize -> authorize
                         .antMatchers("/h2-console/**").permitAll()
                         .antMatchers("/", "/webjars/**", "/login", "/resources/**").permitAll()
+                        .antMatchers("/swagger-ui.html", "/swagger-resources/**", "/csrf").permitAll()
+                        .antMatchers("/webjars/springfox-swagger-ui/**", "/v2/api-docs").permitAll()
                 )
                 .authorizeRequests()
                 .anyRequest().authenticated()
@@ -44,20 +39,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+//    @Bean
+//    PasswordEncoder passwordEncoder() {
+//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+//    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("test")
+                .withUser("admin")
                 .password("{noop}pwd123")
                 .roles("ADMIN")
                 .and()
                 .withUser("user")
                 .password("{noop}pwd123")
-                .roles("ADMIN");
+                .roles("USER");
     }
 }
